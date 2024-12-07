@@ -2,17 +2,44 @@
 
 --LIBRARY START
 --Services
-getgenv().runService = game:GetService"RunService"
-getgenv().textService = game:GetService"TextService"
-getgenv().inputService = game:GetService"UserInputService"
-getgenv().tweenService = game:GetService"TweenService"
 
-if getgenv().library then
-    getgenv().library:Unload()
+_G.runService = game:GetService"RunService"
+_G.textService = game:GetService"TextService"
+_G.inputService = game:GetService"UserInputService"
+_G.tweenService = game:GetService"TweenService"
+
+if _G.library then
+    _G.library:Unload()
 end
 
-local library = {design = getgenv().design == "kali" and "kali" or "uwuware", tabs = {}, draggable = true, flags = {}, title = "tickware.", open = false, popup = nil, instances = {}, connections = {}, options = {}, notifications = {}, tabSize = 0, theme = {}, foldername = "tickware_cnfgs", fileext = ".txt"}
-getgenv().library = library
+function SetValue(object, property, value, duration, easingStyle, easingDirection)
+    local TweenService = game:GetService("TweenService")
+
+    -- Check if object is in the Workspace
+    local originalParent = object.Parent
+    if not object:IsDescendantOf(workspace) then
+        object.Parent = workspace
+    end
+
+    -- Tween setup
+    local tweenInfo = TweenInfo.new(
+        duration or 1, -- Default duration to 1 if not provided
+        easingStyle or Enum.EasingStyle.Linear,
+        easingDirection or Enum.EasingDirection.Out
+    )
+    local tween = TweenService:Create(object, tweenInfo, {[property] = value})
+    tween:Play()
+    
+    -- Return object to original parent after tween
+    tween.Completed:Connect(function()
+        if originalParent then
+            object.Parent = originalParent
+        end
+    end)
+end
+
+local library = {design = _G.design == "kali" and "kali" or "uwuware", tabs = {}, draggable = true, flags = {}, title = "tickware.", open = false, popup = nil, instances = {}, connections = {}, options = {}, notifications = {}, tabSize = 0, theme = {}, foldername = "tickware_cnfgs", fileext = ".txt"}
+_G.library = library
 
 --Locals
 local dragging, dragInput, dragStart, startPos, dragObject
@@ -86,7 +113,7 @@ function library:Unload()
         end
     end
     library = nil
-    getgenv().library = nil
+    _G.library = nil
 end
 
 function library:LoadConfig(config)
